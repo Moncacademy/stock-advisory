@@ -1,0 +1,232 @@
+[
+  {
+    "ticker": "RKLB",
+    "bull_case": {
+      "confidence": 7,
+      "arguments": [
+        {
+          "title": "Strong Revenue Growth Trajectory",
+          "detail": "Revenue grew 64% year-over-year, from $144.5M in Q2 2025 to $200.3M in Q1 2026, indicating rapid scaling. This consistent growth suggests increasing demand for Rocket Lab's launch and space systems.",
+          "data_source": "Quarterly data: Q2 2025 to Q1 2026 revenue figures"
+        },
+        {
+          "title": "Improving Profitability Trend",
+          "detail": "Net loss narrowed from -$66.4M in Q2 2025 to -$45.0M in Q1 2026, despite revenue growth. This trend suggests operating leverage and a path toward profitability.",
+          "data_source": "Quarterly data: Net income from Q2 2025 to Q1 2026"
+        },
+        {
+          "title": "Positive Market Sentiment and Analyst Coverage",
+          "detail": "Recent news highlights Rocket Lab climbing 5% while SpaceX fell, and it is listed among Nasdaq 100 stocks with promising prospects. This indicates growing investor confidence and potential institutional interest.",
+          "data_source": "Recent news: 24/7 Wall St., StockStory articles"
+        }
+      ]
+    },
+    "bear_case": {
+      "confidence": 8,
+      "arguments": [
+        {
+          "title": "Unsustainable Valuation with Negative Earnings",
+          "detail": "The stock trades at a P/B of 26.1 and a forward P/E of -5133.5, with no current P/E due to negative earnings. Despite revenue growth, the market cap of $64B implies extreme optimism that may not be justified.",
+          "data_source": "Fundamentals: P/B, Forward P/E, Market Cap"
+        },
+        {
+          "title": "High Debt and Negative Profit Margins",
+          "detail": "Debt-to-equity ratio is 6.124, indicating high leverage, while profit margins are -26.9%. The company is burning cash, and the high debt could become problematic if revenue growth slows.",
+          "data_source": "Fundamentals: Debt/Equity, Profit Margins"
+        },
+        {
+          "title": "Bearish Technical Indicators",
+          "detail": "The MACD is bearish, the stock price ($102.66) is below its 50-day moving average ($106.7), and the RSI is neutral at 49.1. Technicals suggest downward momentum and potential further decline.",
+          "data_source": "Technical Indicators: MACD, MA50, RSI"
+        }
+      ]
+    },
+    "verdict": "Net bearish: The company's high valuation, negative earnings, and bearish technicals outweigh strong revenue growth.",
+    "key_risk": "The extremely high debt-to-equity ratio of 6.1 could lead to financial distress if revenue growth decelerates or interest rates rise.",
+    "key_catalyst": "Continued revenue growth acceleration and a path to positive net income could justify the current valuation and drive the stock higher."
+  },
+  {
+    "ticker": "NVDA",
+    "bull_case": {
+      "confidence": 8,
+      "arguments": [
+        {
+          "title": "Explosive Revenue Growth",
+          "detail": "Revenue grew 85% YoY to $81.6B in Q2 2026, with QoQ growth of 20%. This demonstrates sustained demand for AI chips.",
+          "data_source": "Quarterly Data: 2026-Q2 Revenue=$81615M, Revenue Growth=0.852"
+        },
+        {
+          "title": "High Profit Margins",
+          "detail": "Profit margin stands at 63%, indicating strong pricing power and operational efficiency. Net income nearly doubled from $26.4B to $58.3B over four quarters.",
+          "data_source": "Fundamentals: Profit Margins=0.62966; Quarterly Data: Net Income trend"
+        },
+        {
+          "title": "Attractive Forward Valuation",
+          "detail": "Forward P/E of 15.5 is low relative to historical growth rates, suggesting the stock may be undervalued if growth continues.",
+          "data_source": "Fundamentals: Forward P/E=15.529875"
+        }
+      ]
+    },
+    "bear_case": {
+      "confidence": 7,
+      "arguments": [
+        {
+          "title": "Technical Weakness",
+          "detail": "Price is below the 50-day moving average ($209.76) and MACD is bearish, with RSI at 43.8 indicating selling pressure. Volume is below average.",
+          "data_source": "Technical Indicators: MA50=209.76, MACD=bearish, RSI=43.8, Volume=0.57x avg"
+        },
+        {
+          "title": "High Debt-to-Equity",
+          "detail": "Debt/Equity ratio of 6.6 is extremely high, signaling financial leverage risk. This could amplify losses if revenue growth slows.",
+          "data_source": "Fundamentals: Debt/Equity=6.555"
+        },
+        {
+          "title": "Industry Headwinds",
+          "detail": "Micron stock plummeting today suggests weakness in the semiconductor sector. News about Trump disclosure puts Nvidia in focus, adding regulatory uncertainty.",
+          "data_source": "Recent News: Micron stock plummeting, Trump disclosure"
+        }
+      ]
+    },
+    "verdict": "Balanced: strong fundamentals and growth are offset by technical weakness and high leverage, making the stock a hold with equal upside and downside risks.",
+    "key_risk": "The extremely high debt-to-equity ratio of 6.6 could lead to financial distress if revenue growth decelerates or interest rates rise.",
+    "key_catalyst": "Continued AI adoption driving revenue growth above 85% YoY could justify a higher valuation multiple and push the stock above its 50-day moving average."
+  },
+  {
+    "ticker": "MP",
+    "bull_case": {
+      "confidence": 7,
+      "arguments": [
+        {
+          "title": "Explosive Revenue Growth",
+          "detail": "Revenue grew 119% YoY and 72% QoQ, reaching $90.6M in Q1 2026, driven by record materials segment output. This rapid top-line expansion suggests strong demand for rare earths and operational scaling.",
+          "data_source": "Revenue Growth 1.186, Q1 2026 Revenue $90.6M, QoQ +72%"
+        },
+        {
+          "title": "Strategic Shift to High-Value Magnetics",
+          "detail": "MP is building a downstream magnetics business in partnership with GM, which could create a moat by capturing higher margins. The market may be undervaluing this long-term pivot.",
+          "data_source": "News: 'Is MP Materials Quietly Redefining Its Moat With Higher-Value Magnetics And GM Alignment?'"
+        },
+        {
+          "title": "Strong Liquidity Position",
+          "detail": "Current ratio of 7.176 indicates ample short-term liquidity to fund operations and capex. This financial flexibility reduces bankruptcy risk and supports growth investments.",
+          "data_source": "Current Ratio: 7.176"
+        }
+      ]
+    },
+    "bear_case": {
+      "confidence": 8,
+      "arguments": [
+        {
+          "title": "Unsustainable Debt Levels",
+          "detail": "Debt-to-equity ratio of 44.0 is extremely high, indicating heavy leverage. With negative profit margins (-20.5%) and net losses in 3 of the last 4 quarters, debt servicing could become a burden.",
+          "data_source": "Debt/Equity: 44.018, Profit Margins: -0.2048, Net Income losses"
+        },
+        {
+          "title": "Bearish Technical Signals",
+          "detail": "Price is below the 50-day MA ($62.04) and MACD is bearish. RSI at 41.7 is neutral but trending down, and volume is only 37% of average, suggesting weak buying interest.",
+          "data_source": "MA50: 62.04, MACD: bearish, Volume: 0.37x avg"
+        },
+        {
+          "title": "High Valuation with No Earnings",
+          "detail": "Forward P/E of 52.8 is expensive for a company with negative net income and profit margins. The market is pricing in future profitability that may not materialize if rare earth prices decline or costs rise.",
+          "data_source": "Forward P/E: 52.83, Profit Margins: -0.2048"
+        }
+      ]
+    },
+    "verdict": "Net bearish \u2014 despite strong revenue growth, the extreme debt, negative earnings, and bearish technicals outweigh the bullish narrative.",
+    "key_risk": "The massive debt-to-equity ratio of 44.0 could lead to financial distress if revenue growth slows or rare earth prices drop.",
+    "key_catalyst": "A successful ramp-up of the magnetics business with GM could transform MP into a vertically integrated, high-margin producer, justifying the premium valuation."
+  },
+  {
+    "ticker": "ASTS",
+    "bull_case": {
+      "confidence": 7,
+      "arguments": [
+        {
+          "title": "Explosive Revenue Growth",
+          "detail": "Revenue grew 1952% year-over-year, from $1.2M in Q2 2025 to $14.7M in Q1 2026, with a peak of $54.3M in Q4 2025. This demonstrates rapid commercial adoption of its satellite network.",
+          "data_source": "Quarterly data: Revenue Growth 1952% YoY, Q4 2025 revenue $54.3M"
+        },
+        {
+          "title": "Strong Technical Momentum",
+          "detail": "MACD is bullish, price ($88.15) is above the 50-day moving average ($86.35), and RSI is neutral at 51.6, leaving room for upside. Volume is normal, indicating healthy trading.",
+          "data_source": "Technical Indicators: MACD bullish, MA50 $86.35, RSI 51.6, volume 0.54x avg"
+        },
+        {
+          "title": "Major Strategic Partnership in Japan",
+          "detail": "A filing confirms a Rakuten-led nearly $1B push for ASTS in Japan, positioning the company as a SpaceX rival. This validates the technology and provides a significant funding catalyst.",
+          "data_source": "Recent News: Stocktwits article on Japan filing and Rakuten-led $1B push"
+        }
+      ]
+    },
+    "bear_case": {
+      "confidence": 8,
+      "arguments": [
+        {
+          "title": "Unsustainable Losses and Negative Margins",
+          "detail": "Net income has been deeply negative for four consecutive quarters, with a cumulative loss of $487.3M. Profit margins are 0.0%, and forward P/E is -429.58, indicating no near-term profitability.",
+          "data_source": "Quarterly data: Net Income -$191M, -$74M, -$122.9M, -$99.4M; Forward P/E -429.58; Profit Margins 0.0"
+        },
+        {
+          "title": "Extreme Valuation and Debt Concerns",
+          "detail": "P/B ratio is 12.65, and Debt/Equity is 112.4, indicating high leverage relative to equity. With a market cap of $34.2B and minimal revenue, the stock is priced for perfection.",
+          "data_source": "Fundamentals: P/B 12.65, Debt/Equity 112.4, Market Cap $34.2B"
+        },
+        {
+          "title": "Revenue Volatility and QoQ Decline",
+          "detail": "Despite strong YoY growth, revenue dropped 73% quarter-over-quarter from $54.3M in Q4 2025 to $14.7M in Q1 2026, suggesting lumpy revenue streams and potential customer concentration.",
+          "data_source": "Quarterly data: QoQ revenue -73% (red flag), Q4 2025 $54.3M vs Q1 2026 $14.7M"
+        }
+      ]
+    },
+    "verdict": "Net bearish: The company's massive losses, extreme valuation, and volatile revenue outweigh the impressive growth and technical momentum.",
+    "key_risk": "The company may run out of cash before achieving profitability, given cumulative losses of $487.3M over four quarters and high debt-to-equity of 112.4.",
+    "key_catalyst": "A successful deployment of its satellite network and conversion of the Rakuten-led $1B Japan deal into recurring revenue could validate the business model and drive the stock higher."
+  },
+  {
+    "ticker": "IONQ",
+    "bull_case": {
+      "confidence": 7,
+      "arguments": [
+        {
+          "title": "Explosive Revenue Growth",
+          "detail": "Revenue grew 755% YoY to $64.7M in Q1 2026, up from $20.7M in Q2 2025, indicating rapid commercial adoption of IonQ's quantum computing systems.",
+          "data_source": "Quarterly Data: 2026-Q1 Revenue=$64.7M, Revenue Growth=7.547 (755% YoY)"
+        },
+        {
+          "title": "Strong Profit Margins",
+          "detail": "Profit margin stands at 175%, and net income swung to positive $805.4M in Q1 2026 from losses in prior quarters, suggesting improving operational efficiency.",
+          "data_source": "Fundamentals: Profit Margins=1.7488099; Quarterly Data: 2026-Q1 Net Income=$805.4M"
+        },
+        {
+          "title": "Solid Financial Health",
+          "detail": "With a current ratio of 14.05 and debt-to-equity of 0.61, IonQ has ample liquidity and low leverage, reducing bankruptcy risk in a capital-intensive industry.",
+          "data_source": "Fundamentals: Current Ratio=14.052, Debt/Equity=0.61"
+        }
+      ]
+    },
+    "bear_case": {
+      "confidence": 8,
+      "arguments": [
+        {
+          "title": "Extreme Valuation",
+          "detail": "P/E of 134 and negative forward P/E of -49.65 imply the stock is priced for perfection, with no margin for error despite still-negative earnings on a trailing basis.",
+          "data_source": "Fundamentals: P/E=134.12822, Forward P/E=-49.652596"
+        },
+        {
+          "title": "Technical Weakness",
+          "detail": "Price ($52.31) is below the 50-day MA ($54.92), MACD is bearish, and volume is only 36% of average, indicating lack of buying conviction and potential further downside.",
+          "data_source": "Technical Indicators: RSI=44.9, MACD=bearish, MA50=54.92, Volume=0.36x avg"
+        },
+        {
+          "title": "Cash Burn Concerns",
+          "detail": "Despite recent profitability, the company had massive losses in Q3 2025 (-$1.055B) and Q2 2025 (-$176.8M), and industry-wide cash sustainability is questioned in recent news.",
+          "data_source": "Quarterly Data: 2025-Q3 Net Income=-$1055.0M, 2025-Q2 Net Income=-$176.8M; News: 'Quantum Computing\u2019s Cash Crisis'"
+        }
+      ]
+    },
+    "verdict": "Net bearish: Extreme valuation and technical weakness outweigh impressive revenue growth and financial health, especially given the volatile history of losses.",
+    "key_risk": "The forward P/E is negative, meaning analysts expect earnings to decline, which could trigger a severe valuation correction if growth disappoints.",
+    "key_catalyst": "Continued revenue acceleration and sustained profitability could justify the high P/E and drive the stock higher, especially if quantum computing adoption broadens."
+  }
+]

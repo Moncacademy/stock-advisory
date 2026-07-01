@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Brief — July 01, 2026</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card-bg: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --green: #00d09c;
+    --red: #ff5252;
+    --yellow: #ffb74d;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.5; padding: 12px; max-width: 100%; }
+  .header { text-align: center; padding: 16px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .header h1 { font-size: 1.5rem; font-weight: 600; }
+  .header .date { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
+  .summary { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .summary-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--border); }
+  .pill-priority { background: rgba(255,82,82,0.15); border-color: var(--red); color: var(--red); }
+  .pill-watch { background: rgba(255,183,77,0.15); border-color: var(--yellow); color: var(--yellow); }
+  .pill-stable { background: rgba(0,208,156,0.15); border-color: var(--green); color: var(--green); }
+  .pill-new { background: rgba(88,166,255,0.15); border-color: var(--blue); color: var(--blue); }
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .stock-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .stock-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .stock-name { font-size: 1rem; font-weight: 600; }
+  .stock-ticker { color: var(--text-dim); font-size: 0.85rem; }
+  .stock-price { font-size: 1.1rem; font-weight: 600; }
+  .price-change { font-size: 0.85rem; font-weight: 500; }
+  .positive { color: var(--green); }
+  .negative { color: var(--red); }
+  .stock-body { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+  @media (min-width: 640px) { .stock-body { grid-template-columns: 1fr 1fr; } }
+  .indicators { display: flex; flex-wrap: wrap; gap: 6px; }
+  .indicator { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+  .ind-bullish { color: var(--green); border-color: rgba(0,208,156,0.3); }
+  .ind-bearish { color: var(--red); border-color: rgba(255,82,82,0.3); }
+  .ind-neutral { color: var(--text-dim); }
+  .ind-warning { color: var(--yellow); border-color: rgba(255,183,77,0.3); }
+  .bull-bear-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 640px) { .bull-bear-grid { grid-template-columns: 1fr 1fr; } }
+  .case-box { padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+  .case-bull { background: rgba(0,208,156,0.05); border-color: rgba(0,208,156,0.2); }
+  .case-bear { background: rgba(255,82,82,0.05); border-color: rgba(255,82,82,0.2); }
+  .case-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .case-arg { font-size: 0.8rem; margin-bottom: 6px; }
+  .case-arg-title { font-weight: 500; color: var(--text); }
+  .case-arg-detail { color: var(--text-dim); margin-top: 2px; }
+  .case-arg-source { font-size: 0.7rem; color: var(--blue); margin-top: 2px; }
+  .news-item { font-size: 0.8rem; margin-bottom: 4px; }
+  .news-item a { color: var(--blue); text-decoration: none; }
+  .news-item a:hover { text-decoration: underline; }
+  .flags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .flag { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+  .flag-red { background: rgba(255,82,82,0.15); color: var(--red); }
+  .flag-green { background: rgba(0,208,156,0.15); color: var(--green); }
+  .verdict { font-size: 0.85rem; font-weight: 500; padding: 6px 0; border-top: 1px solid var(--border); margin-top: 8px; }
+  .penny-badge { background: rgba(255,82,82,0.2); color: var(--red); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+  .sparkline { display: inline-block; vertical-align: middle; margin-left: 8px; }
+  .category-tag { font-size: 0.7rem; color: var(--purple); padding: 2px 6px; border-radius: 4px; background: rgba(188,140,255,0.1); }
+  .footer { text-align: center; color: var(--text-dim); font-size: 0.75rem; padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
+  .compact-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+  .compact-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 0.75rem; }
+  .compact-item .ticker { font-weight: 600; }
+  details summary { cursor: pointer; color: var(--text-dim); font-size: 0.85rem; padding: 8px 0; }
+  details[open] summary { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 Daily Stock Brief</h1>
+  <div class="date">July 01, 2026</div>
+</div>
+
+<div class="summary">
+  <span class="summary-pill pill-priority">🔴 Priority: 5</span>
+  <span class="summary-pill pill-watch">🟡 Watch: 0</span>
+  <span class="summary-pill pill-stable">🟢 Stable: 0</span>
+  <span class="summary-pill" style="background:rgba(139,148,158,0.1);border-color:var(--text-dim);color:var(--text-dim);">❌ Errors: 0</span>
+</div>
+
+<div class="section">
+<div class="section-title">🔴 Priority — Significant Signals</div>
+<div class="stock-card">
+  <div class="stock-header">
+    <div>
+      <span class="stock-name">MP Materials Corp.</span>
+      <span class="stock-ticker">MP</span>
+      <span class="category-tag">Rare Earth Materials</span>
+      
+      <span class="sparkline"><svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+  <polyline points="0.0,27.6 3.4,25.1 6.9,16.8 10.3,12.4 13.8,8.4 17.2,11.2 20.7,8.6 24.1,12.0 27.6,4.7 31.0,0.0 34.5,5.9 37.9,10.8 41.4,20.9 44.8,23.4 48.3,28.6 51.7,30.0 55.2,24.0 58.6,23.5 62.1,22.3 65.5,24.3 69.0,18.2 72.4,18.1 75.9,19.1 79.3,21.3 82.8,25.1 86.2,26.5 89.7,29.3 93.1,27.9 96.6,25.9 100.0,27.9" fill="none" stroke="#ff5252" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span>
+    </div>
+    <div style="text-align:right;">
+      <div class="stock-price">$54.77</div>
+      <div class="price-change negative">-2.2%</div>
+    </div>
+  </div>
+  
+  <div class="indicators" style="margin-top:8px;">
+    <span class="indicator ind-neutral">Cap $9.8B</span>
+    <span class="indicator ind-neutral">Vol 2.0M (0.37x avg)</span>
+    <span class="indicator ind-neutral">RSI 41.7 (neutral)</span><span class="indicator ind-bearish">MACD bearish</span><span class="indicator ind-neutral">Vol low volume</span><span class="indicator ind-bearish">Overall: bearish</span>
+  </div>
+  
+  <div class="indicators" style="margin-top:6px;"><span class="indicator ind-neutral">2026-Q1: Rev $90.6M, NI $-8.0M</span><span class="indicator ind-neutral">2025-Q4: Rev $52.7M, NI $9.4M</span><span class="indicator ind-neutral">2025-Q3: Rev $53.6M, NI $-41.8M</span><span class="indicator ind-neutral">2025-Q2: Rev $57.4M, NI $-30.9M</span></div>
+  
+  <div class="flags"><span class="flag flag-green">✅ Revenue growth 119% YoY</span><span class="flag flag-green">✅ QoQ revenue +72%</span><span class="flag flag-red">Very high debt-to-equity 44.0</span></div>
+  
+  <div class="stock-body">
+    <div class="bull-bear-grid">
+      <div class="case-box case-bull">
+  <div class="case-title"><span>🐂 BULL CASE</span><span>Confidence: 7/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📈 Explosive Revenue Growth</div>
+  <div class="case-arg-detail">Revenue grew 119% YoY and 72% QoQ, reaching $90.6M in Q1 2026, driven by record materials segment output. This rapid top-line expansion suggests strong demand for rare earths and operational scaling.</div>
+  <div class="case-arg-source">📊 Revenue Growth 1.186, Q1 2026 Revenue $90.6M, QoQ +72%</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Strategic Shift to High-Value Magnetics</div>
+  <div class="case-arg-detail">MP is building a downstream magnetics business in partnership with GM, which could create a moat by capturing higher margins. The market may be undervaluing this long-term pivot.</div>
+  <div class="case-arg-source">📊 News: 'Is MP Materials Quietly Redefining Its Moat With Higher-Value Magnetics And GM Alignment?'</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Strong Liquidity Position</div>
+  <div class="case-arg-detail">Current ratio of 7.176 indicates ample short-term liquidity to fund operations and capex. This financial flexibility reduces bankruptcy risk and supports growth investments.</div>
+  <div class="case-arg-source">📊 Current Ratio: 7.176</div>
+</div>
+</div>
+      <div class="case-box case-bear">
+  <div class="case-title"><span>🐻 BEAR CASE</span><span>Confidence: 8/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📉 Unsustainable Debt Levels</div>
+  <div class="case-arg-detail">Debt-to-equity ratio of 44.0 is extremely high, indicating heavy leverage. With negative profit margins (-20.5%) and net losses in 3 of the last 4 quarters, debt servicing could become a burden.</div>
+  <div class="case-arg-source">📊 Debt/Equity: 44.018, Profit Margins: -0.2048, Net Income losses</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Bearish Technical Signals</div>
+  <div class="case-arg-detail">Price is below the 50-day MA ($62.04) and MACD is bearish. RSI at 41.7 is neutral but trending down, and volume is only 37% of average, suggesting weak buying interest.</div>
+  <div class="case-arg-source">📊 MA50: 62.04, MACD: bearish, Volume: 0.37x avg</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 High Valuation with No Earnings</div>
+  <div class="case-arg-detail">Forward P/E of 52.8 is expensive for a company with negative net income and profit margins. The market is pricing in future profitability that may not materialize if rare earth prices decline or costs rise.</div>
+  <div class="case-arg-source">📊 Forward P/E: 52.83, Profit Margins: -0.2048</div>
+</div>
+</div>
+    </div>
+  </div>
+  
+  <div class="case-box" style="margin-top:8px;"><div class="case-title">📰 Recent News</div><div class="news-item">📰 <a href="https://finance.yahoo.com/markets/commodities/articles/mps-materials-segment-hits-record-182700088.html" target="_blank" rel="noopener">MP's Materials Segment Hits Record Levels in Q126: Can Momentum Last?</a> — Zacks</div>
+<div class="news-item">📰 <a href="https://www.barchart.com/story/news/3055992/down-21-in-the-last-month-mp-materials-stock-just-might-be-a-discount-buy-here" target="_blank" rel="noopener">Down 21% in the Last Month, MP Materials Stock Just Might Be a Discount Buy Here</a> — Barchart</div>
+<div class="news-item">📰 <a href="https://finance.yahoo.com/markets/stocks/articles/mp-materials-mp-quietly-redefining-220914551.html" target="_blank" rel="noopener">Is MP Materials (MP) Quietly Redefining Its Moat With Higher-Value Magnetics And GM Alignment?</a> — Simply Wall St.</div>
+</div>
+  <div class="verdict">
+  <strong>Verdict:</strong> Net bearish — despite strong revenue growth, the extreme debt, negative earnings, and bearish technicals outweigh the bullish narrative.<br>
+  <strong>Key Risk:</strong> <span class="negative">The massive debt-to-equity ratio of 44.0 could lead to financial distress if revenue growth slows or rare earth prices drop.</span><br>
+  <strong>Key Catalyst:</strong> <span class="positive">A successful ramp-up of the magnetics business with GM could transform MP into a vertically integrated, high-margin producer, justifying the premium valuation.</span>
+</div>
+</div>
+<div class="stock-card">
+  <div class="stock-header">
+    <div>
+      <span class="stock-name">IonQ, Inc.</span>
+      <span class="stock-ticker">IONQ</span>
+      <span class="category-tag">Quantum Computing</span>
+      
+      <span class="sparkline"><svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+  <polyline points="0.0,30.0 3.4,24.9 6.9,16.7 10.3,10.7 13.8,10.7 17.2,8.5 20.7,2.5 24.1,0.0 27.6,3.5 31.0,0.9 34.5,4.9 37.9,8.1 41.4,19.4 44.8,11.8 48.3,19.5 51.7,19.6 55.2,17.9 58.6,18.1 62.1,13.8 65.5,20.3 69.0,22.1 72.4,19.7 75.9,17.5 79.3,18.1 82.8,23.4 86.2,27.3 89.7,28.9 93.1,23.1 96.6,23.9 100.0,25.1" fill="none" stroke="#00d09c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span>
+    </div>
+    <div style="text-align:right;">
+      <div class="stock-price">$52.31</div>
+      <div class="price-change negative">-1.8%</div>
+    </div>
+  </div>
+  
+  <div class="indicators" style="margin-top:8px;">
+    <span class="indicator ind-neutral">Cap $19.5B</span>
+    <span class="indicator ind-neutral">Vol 9.8M (0.36x avg)</span>
+    <span class="indicator ind-neutral">RSI 44.9 (neutral)</span><span class="indicator ind-bearish">MACD bearish</span><span class="indicator ind-neutral">Vol low volume</span><span class="indicator ind-bearish">Overall: bearish</span>
+  </div>
+  
+  <div class="indicators" style="margin-top:6px;"><span class="indicator ind-neutral">2026-Q1: Rev $64.7M, NI $805.4M</span><span class="indicator ind-neutral">2025-Q4: Rev $61.9M, NI $753.7M</span><span class="indicator ind-neutral">2025-Q3: Rev $39.9M, NI $-1055.0M</span><span class="indicator ind-neutral">2025-Q2: Rev $20.7M, NI $-176.8M</span></div>
+  
+  <div class="flags"><span class="flag flag-green">✅ Revenue growth 755% YoY</span><span class="flag flag-green">✅ Profit margin 175%</span></div>
+  
+  <div class="stock-body">
+    <div class="bull-bear-grid">
+      <div class="case-box case-bull">
+  <div class="case-title"><span>🐂 BULL CASE</span><span>Confidence: 7/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📈 Explosive Revenue Growth</div>
+  <div class="case-arg-detail">Revenue grew 755% YoY to $64.7M in Q1 2026, up from $20.7M in Q2 2025, indicating rapid commercial adoption of IonQ's quantum computing systems.</div>
+  <div class="case-arg-source">📊 Quarterly Data: 2026-Q1 Revenue=$64.7M, Revenue Growth=7.547 (755% YoY)</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Strong Profit Margins</div>
+  <div class="case-arg-detail">Profit margin stands at 175%, and net income swung to positive $805.4M in Q1 2026 from losses in prior quarters, suggesting improving operational efficiency.</div>
+  <div class="case-arg-source">📊 Fundamentals: Profit Margins=1.7488099; Quarterly Data: 2026-Q1 Net Income=$805.4M</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Solid Financial Health</div>
+  <div class="case-arg-detail">With a current ratio of 14.05 and debt-to-equity of 0.61, IonQ has ample liquidity and low leverage, reducing bankruptcy risk in a capital-intensive industry.</div>
+  <div class="case-arg-source">📊 Fundamentals: Current Ratio=14.052, Debt/Equity=0.61</div>
+</div>
+</div>
+      <div class="case-box case-bear">
+  <div class="case-title"><span>🐻 BEAR CASE</span><span>Confidence: 8/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📉 Extreme Valuation</div>
+  <div class="case-arg-detail">P/E of 134 and negative forward P/E of -49.65 imply the stock is priced for perfection, with no margin for error despite still-negative earnings on a trailing basis.</div>
+  <div class="case-arg-source">📊 Fundamentals: P/E=134.12822, Forward P/E=-49.652596</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Technical Weakness</div>
+  <div class="case-arg-detail">Price ($52.31) is below the 50-day MA ($54.92), MACD is bearish, and volume is only 36% of average, indicating lack of buying conviction and potential further downside.</div>
+  <div class="case-arg-source">📊 Technical Indicators: RSI=44.9, MACD=bearish, MA50=54.92, Volume=0.36x avg</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Cash Burn Concerns</div>
+  <div class="case-arg-detail">Despite recent profitability, the company had massive losses in Q3 2025 (-$1.055B) and Q2 2025 (-$176.8M), and industry-wide cash sustainability is questioned in recent news.</div>
+  <div class="case-arg-source">📊 Quarterly Data: 2025-Q3 Net Income=-$1055.0M, 2025-Q2 Net Income=-$176.8M; News: 'Quantum Computing’s Cash Crisis'</div>
+</div>
+</div>
+    </div>
+  </div>
+  
+  <div class="case-box" style="margin-top:8px;"><div class="case-title">📰 Recent News</div><div class="news-item">📰 <a href="https://finance.yahoo.com/technology/ai/articles/d-wave-secures-nsf-grant-141800803.html" target="_blank" rel="noopener">D-Wave Secures NSF Grant for Yale University-Led ERASE Initiative</a> — Zacks</div>
+<div class="news-item">📰 <a href="https://247wallst.com/investing/2026/07/01/quantum-computings-cash-crisis-which-players-can-actually-survive-the-long-game/" target="_blank" rel="noopener">Quantum Computing’s Cash Crisis: Which Players Can Actually Survive the Long Game?</a> — 24/7 Wall St.</div>
+<div class="news-item">📰 <a href="https://finance.yahoo.com/markets/stocks/articles/heres-financial-strength-remains-key-121100986.html" target="_blank" rel="noopener">Here's How Financial Strength Remains a Key Advantage for IONQ</a> — Zacks</div>
+</div>
+  <div class="verdict">
+  <strong>Verdict:</strong> Net bearish: Extreme valuation and technical weakness outweigh impressive revenue growth and financial health, especially given the volatile history of losses.<br>
+  <strong>Key Risk:</strong> <span class="negative">The forward P/E is negative, meaning analysts expect earnings to decline, which could trigger a severe valuation correction if growth disappoints.</span><br>
+  <strong>Key Catalyst:</strong> <span class="positive">Continued revenue acceleration and sustained profitability could justify the high P/E and drive the stock higher, especially if quantum computing adoption broadens.</span>
+</div>
+</div>
+<div class="stock-card">
+  <div class="stock-header">
+    <div>
+      <span class="stock-name">Rocket Lab Corporation</span>
+      <span class="stock-ticker">RKLB</span>
+      <span class="category-tag">Space Satellites</span>
+      
+      <span class="sparkline"><svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+  <polyline points="0.0,9.9 3.4,6.9 6.9,10.7 10.3,6.2 13.8,3.0 17.2,0.0 20.7,0.9 24.1,2.9 27.6,12.0 31.0,11.6 34.5,15.3 37.9,13.1 41.4,17.3 44.8,15.8 48.3,18.1 51.7,19.5 55.2,15.3 58.6,20.6 62.1,17.7 65.5,19.7 69.0,18.2 72.4,18.5 75.9,21.5 79.3,23.8 82.8,28.0 86.2,30.0 89.7,28.3 93.1,22.5 96.6,21.0 100.0,20.5" fill="none" stroke="#ff5252" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span>
+    </div>
+    <div style="text-align:right;">
+      <div class="stock-price">$102.66</div>
+      <div class="price-change positive">+1.0%</div>
+    </div>
+  </div>
+  
+  <div class="indicators" style="margin-top:8px;">
+    <span class="indicator ind-neutral">Cap $64.2B</span>
+    <span class="indicator ind-neutral">Vol 16.7M (0.56x avg)</span>
+    <span class="indicator ind-neutral">RSI 49.1 (neutral)</span><span class="indicator ind-bearish">MACD bearish</span><span class="indicator ind-bearish">Overall: bearish</span>
+  </div>
+  
+  <div class="indicators" style="margin-top:6px;"><span class="indicator ind-neutral">2026-Q1: Rev $200.3M, NI $-45.0M</span><span class="indicator ind-neutral">2025-Q4: Rev $179.7M, NI $-52.9M</span><span class="indicator ind-neutral">2025-Q3: Rev $155.1M, NI $-18.3M</span><span class="indicator ind-neutral">2025-Q2: Rev $144.5M, NI $-66.4M</span></div>
+  
+  <div class="flags"><span class="flag flag-green">✅ Revenue growth 64% YoY</span><span class="flag flag-red">Very high debt-to-equity 6.1</span></div>
+  
+  <div class="stock-body">
+    <div class="bull-bear-grid">
+      <div class="case-box case-bull">
+  <div class="case-title"><span>🐂 BULL CASE</span><span>Confidence: 7/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📈 Strong Revenue Growth Trajectory</div>
+  <div class="case-arg-detail">Revenue grew 64% year-over-year, from $144.5M in Q2 2025 to $200.3M in Q1 2026, indicating rapid scaling. This consistent growth suggests increasing demand for Rocket Lab's launch and space systems.</div>
+  <div class="case-arg-source">📊 Quarterly data: Q2 2025 to Q1 2026 revenue figures</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Improving Profitability Trend</div>
+  <div class="case-arg-detail">Net loss narrowed from -$66.4M in Q2 2025 to -$45.0M in Q1 2026, despite revenue growth. This trend suggests operating leverage and a path toward profitability.</div>
+  <div class="case-arg-source">📊 Quarterly data: Net income from Q2 2025 to Q1 2026</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Positive Market Sentiment and Analyst Coverage</div>
+  <div class="case-arg-detail">Recent news highlights Rocket Lab climbing 5% while SpaceX fell, and it is listed among Nasdaq 100 stocks with promising prospects. This indicates growing investor confidence and potential institutional interest.</div>
+  <div class="case-arg-source">📊 Recent news: 24/7 Wall St., StockStory articles</div>
+</div>
+</div>
+      <div class="case-box case-bear">
+  <div class="case-title"><span>🐻 BEAR CASE</span><span>Confidence: 8/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📉 Unsustainable Valuation with Negative Earnings</div>
+  <div class="case-arg-detail">The stock trades at a P/B of 26.1 and a forward P/E of -5133.5, with no current P/E due to negative earnings. Despite revenue growth, the market cap of $64B implies extreme optimism that may not be justified.</div>
+  <div class="case-arg-source">📊 Fundamentals: P/B, Forward P/E, Market Cap</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 High Debt and Negative Profit Margins</div>
+  <div class="case-arg-detail">Debt-to-equity ratio is 6.124, indicating high leverage, while profit margins are -26.9%. The company is burning cash, and the high debt could become problematic if revenue growth slows.</div>
+  <div class="case-arg-source">📊 Fundamentals: Debt/Equity, Profit Margins</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Bearish Technical Indicators</div>
+  <div class="case-arg-detail">The MACD is bearish, the stock price ($102.66) is below its 50-day moving average ($106.7), and the RSI is neutral at 49.1. Technicals suggest downward momentum and potential further decline.</div>
+  <div class="case-arg-source">📊 Technical Indicators: MACD, MA50, RSI</div>
+</div>
+</div>
+    </div>
+  </div>
+  
+  <div class="case-box" style="margin-top:8px;"><div class="case-title">📰 Recent News</div><div class="news-item">📰 <a href="https://247wallst.com/investing/2026/07/01/spacex-falls-6-despite-a-bullish-dan-ives-rating-as-rocket-lab-climbs-5-virgin-galactic-rises-3/" target="_blank" rel="noopener">SpaceX Falls 6% Despite a Bullish Dan Ives Rating as Rocket Lab Climbs 5%, Virgin Galactic Rises 3%</a> — 24/7 Wall St.</div>
+<div class="news-item">📰 <a href="https://finance.yahoo.com/markets/stocks/articles/3-nasdaq-100-stocks-promising-143300370.html" target="_blank" rel="noopener">3 Nasdaq 100 Stocks with Promising Prospects</a> — StockStory</div>
+<div class="news-item">📰 <a href="https://finance.yahoo.com/technology/articles/rocket-lab-expanding-space-mission-142000146.html" target="_blank" rel="noopener">How Is Rocket Lab Expanding Through Space Mission Software?</a> — Zacks</div>
+</div>
+  <div class="verdict">
+  <strong>Verdict:</strong> Net bearish: The company's high valuation, negative earnings, and bearish technicals outweigh strong revenue growth.<br>
+  <strong>Key Risk:</strong> <span class="negative">The extremely high debt-to-equity ratio of 6.1 could lead to financial distress if revenue growth decelerates or interest rates rise.</span><br>
+  <strong>Key Catalyst:</strong> <span class="positive">Continued revenue growth acceleration and a path to positive net income could justify the current valuation and drive the stock higher.</span>
+</div>
+</div>
+<div class="stock-card">
+  <div class="stock-header">
+    <div>
+      <span class="stock-name">NVIDIA Corporation</span>
+      <span class="stock-ticker">NVDA</span>
+      <span class="category-tag">Semiconductors</span>
+      
+      <span class="sparkline"><svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+  <polyline points="0.0,3.6 3.4,0.8 6.9,4.6 10.3,8.6 13.8,9.0 17.2,11.2 20.7,9.6 24.1,12.6 27.6,0.0 31.0,1.5 34.5,9.1 37.9,5.2 41.4,18.1 44.8,14.7 48.3,15.1 51.7,22.5 55.2,18.3 58.6,18.0 62.1,11.1 65.5,15.9 69.0,18.5 72.4,12.7 75.9,14.7 79.3,22.9 82.8,23.9 86.2,26.9 89.7,30.0 93.1,27.7 96.6,22.8 100.0,24.6" fill="none" stroke="#ff5252" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span>
+    </div>
+    <div style="text-align:right;">
+      <div class="stock-price">$198.23</div>
+      <div class="price-change negative">-0.9%</div>
+    </div>
+  </div>
+  
+  <div class="indicators" style="margin-top:8px;">
+    <span class="indicator ind-neutral">Cap $4.8T</span>
+    <span class="indicator ind-neutral">Vol 87.7M (0.57x avg)</span>
+    <span class="indicator ind-neutral">RSI 43.8 (neutral)</span><span class="indicator ind-bearish">MACD bearish</span><span class="indicator ind-bearish">Overall: bearish</span>
+  </div>
+  
+  <div class="indicators" style="margin-top:6px;"><span class="indicator ind-neutral">2026-Q2: Rev $81615.0M, NI $58321.0M</span><span class="indicator ind-neutral">2026-Q1: Rev $68127.0M, NI $42960.0M</span><span class="indicator ind-neutral">2025-Q4: Rev $57006.0M, NI $31910.0M</span><span class="indicator ind-neutral">2025-Q3: Rev $46743.0M, NI $26422.0M</span></div>
+  
+  <div class="flags"><span class="flag flag-green">✅ Revenue growth 85% YoY</span><span class="flag flag-green">✅ Profit margin 63%</span><span class="flag flag-green">✅ QoQ revenue +20%</span><span class="flag flag-red">Very high debt-to-equity 6.6</span></div>
+  
+  <div class="stock-body">
+    <div class="bull-bear-grid">
+      <div class="case-box case-bull">
+  <div class="case-title"><span>🐂 BULL CASE</span><span>Confidence: 8/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📈 Explosive Revenue Growth</div>
+  <div class="case-arg-detail">Revenue grew 85% YoY to $81.6B in Q2 2026, with QoQ growth of 20%. This demonstrates sustained demand for AI chips.</div>
+  <div class="case-arg-source">📊 Quarterly Data: 2026-Q2 Revenue=$81615M, Revenue Growth=0.852</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 High Profit Margins</div>
+  <div class="case-arg-detail">Profit margin stands at 63%, indicating strong pricing power and operational efficiency. Net income nearly doubled from $26.4B to $58.3B over four quarters.</div>
+  <div class="case-arg-source">📊 Fundamentals: Profit Margins=0.62966; Quarterly Data: Net Income trend</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Attractive Forward Valuation</div>
+  <div class="case-arg-detail">Forward P/E of 15.5 is low relative to historical growth rates, suggesting the stock may be undervalued if growth continues.</div>
+  <div class="case-arg-source">📊 Fundamentals: Forward P/E=15.529875</div>
+</div>
+</div>
+      <div class="case-box case-bear">
+  <div class="case-title"><span>🐻 BEAR CASE</span><span>Confidence: 7/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📉 Technical Weakness</div>
+  <div class="case-arg-detail">Price is below the 50-day moving average ($209.76) and MACD is bearish, with RSI at 43.8 indicating selling pressure. Volume is below average.</div>
+  <div class="case-arg-source">📊 Technical Indicators: MA50=209.76, MACD=bearish, RSI=43.8, Volume=0.57x avg</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 High Debt-to-Equity</div>
+  <div class="case-arg-detail">Debt/Equity ratio of 6.6 is extremely high, signaling financial leverage risk. This could amplify losses if revenue growth slows.</div>
+  <div class="case-arg-source">📊 Fundamentals: Debt/Equity=6.555</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Industry Headwinds</div>
+  <div class="case-arg-detail">Micron stock plummeting today suggests weakness in the semiconductor sector. News about Trump disclosure puts Nvidia in focus, adding regulatory uncertainty.</div>
+  <div class="case-arg-source">📊 Recent News: Micron stock plummeting, Trump disclosure</div>
+</div>
+</div>
+    </div>
+  </div>
+  
+  <div class="case-box" style="margin-top:8px;"><div class="case-title">📰 Recent News</div><div class="news-item">📰 <a href="https://finance.yahoo.com/video/whats-next-for-ai-and-big-tech-in-the-second-half-of-2026-141912104.html" target="_blank" rel="noopener">What's next for AI and Big Tech in the second half of 2026?</a> — Yahoo Finance Video</div>
+<div class="news-item">📰 <a href="https://finance.yahoo.com/markets/stocks/articles/trump-disclosure-puts-nvidia-apple-183409778.html" target="_blank" rel="noopener">Trump Disclosure Puts Nvidia and Apple in Focus</a> — GuruFocus.com</div>
+<div class="news-item">📰 <a href="https://www.fool.com/investing/2026/07/01/why-micron-stock-is-plummeting-today/" target="_blank" rel="noopener">Why Micron Stock Is Plummeting Today</a> — Motley Fool</div>
+</div>
+  <div class="verdict">
+  <strong>Verdict:</strong> Balanced: strong fundamentals and growth are offset by technical weakness and high leverage, making the stock a hold with equal upside and downside risks.<br>
+  <strong>Key Risk:</strong> <span class="negative">The extremely high debt-to-equity ratio of 6.6 could lead to financial distress if revenue growth decelerates or interest rates rise.</span><br>
+  <strong>Key Catalyst:</strong> <span class="positive">Continued AI adoption driving revenue growth above 85% YoY could justify a higher valuation multiple and push the stock above its 50-day moving average.</span>
+</div>
+</div>
+<div class="stock-card">
+  <div class="stock-header">
+    <div>
+      <span class="stock-name">AST SpaceMobile, Inc.</span>
+      <span class="stock-ticker">ASTS</span>
+      <span class="category-tag">Space Satellites</span>
+      
+      <span class="sparkline"><svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+  <polyline points="0.0,20.0 3.4,19.3 6.9,16.4 10.3,12.1 13.8,6.0 17.2,1.6 20.7,0.0 24.1,8.8 27.6,12.2 31.0,6.6 34.5,11.3 37.9,11.5 41.4,17.6 44.8,18.2 48.3,19.7 51.7,20.4 55.2,15.8 58.6,22.5 62.1,20.2 65.5,22.6 69.0,21.2 72.4,23.3 75.9,26.6 79.3,26.8 82.8,28.9 86.2,30.0 89.7,27.4 93.1,20.6 96.6,19.7 100.0,20.0" fill="none" stroke="#00d09c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span>
+    </div>
+    <div style="text-align:right;">
+      <div class="stock-price">$88.15</div>
+      <div class="price-change negative">-0.8%</div>
+    </div>
+  </div>
+  
+  <div class="indicators" style="margin-top:8px;">
+    <span class="indicator ind-neutral">Cap $34.2B</span>
+    <span class="indicator ind-neutral">Vol 13.3M (0.54x avg)</span>
+    <span class="indicator ind-neutral">RSI 51.6 (neutral)</span><span class="indicator ind-bullish">MACD bullish</span><span class="indicator ind-bullish">Overall: bullish</span>
+  </div>
+  
+  <div class="indicators" style="margin-top:6px;"><span class="indicator ind-neutral">2026-Q1: Rev $14.7M, NI $-191.0M</span><span class="indicator ind-neutral">2025-Q4: Rev $54.3M, NI $-74.0M</span><span class="indicator ind-neutral">2025-Q3: Rev $14.7M, NI $-122.9M</span><span class="indicator ind-neutral">2025-Q2: Rev $1.2M, NI $-99.4M</span></div>
+  
+  <div class="flags"><span class="flag flag-green">✅ Revenue growth 1952% YoY</span><span class="flag flag-red">QoQ revenue -73%</span></div>
+  
+  <div class="stock-body">
+    <div class="bull-bear-grid">
+      <div class="case-box case-bull">
+  <div class="case-title"><span>🐂 BULL CASE</span><span>Confidence: 7/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📈 Explosive Revenue Growth</div>
+  <div class="case-arg-detail">Revenue grew 1952% year-over-year, from $1.2M in Q2 2025 to $14.7M in Q1 2026, with a peak of $54.3M in Q4 2025. This demonstrates rapid commercial adoption of its satellite network.</div>
+  <div class="case-arg-source">📊 Quarterly data: Revenue Growth 1952% YoY, Q4 2025 revenue $54.3M</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Strong Technical Momentum</div>
+  <div class="case-arg-detail">MACD is bullish, price ($88.15) is above the 50-day moving average ($86.35), and RSI is neutral at 51.6, leaving room for upside. Volume is normal, indicating healthy trading.</div>
+  <div class="case-arg-source">📊 Technical Indicators: MACD bullish, MA50 $86.35, RSI 51.6, volume 0.54x avg</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📈 Major Strategic Partnership in Japan</div>
+  <div class="case-arg-detail">A filing confirms a Rakuten-led nearly $1B push for ASTS in Japan, positioning the company as a SpaceX rival. This validates the technology and provides a significant funding catalyst.</div>
+  <div class="case-arg-source">📊 Recent News: Stocktwits article on Japan filing and Rakuten-led $1B push</div>
+</div>
+</div>
+      <div class="case-box case-bear">
+  <div class="case-title"><span>🐻 BEAR CASE</span><span>Confidence: 8/10</span></div>
+  <div class="case-arg">
+  <div class="case-arg-title">📉 Unsustainable Losses and Negative Margins</div>
+  <div class="case-arg-detail">Net income has been deeply negative for four consecutive quarters, with a cumulative loss of $487.3M. Profit margins are 0.0%, and forward P/E is -429.58, indicating no near-term profitability.</div>
+  <div class="case-arg-source">📊 Quarterly data: Net Income -$191M, -$74M, -$122.9M, -$99.4M; Forward P/E -429.58; Profit Margins 0.0</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Extreme Valuation and Debt Concerns</div>
+  <div class="case-arg-detail">P/B ratio is 12.65, and Debt/Equity is 112.4, indicating high leverage relative to equity. With a market cap of $34.2B and minimal revenue, the stock is priced for perfection.</div>
+  <div class="case-arg-source">📊 Fundamentals: P/B 12.65, Debt/Equity 112.4, Market Cap $34.2B</div>
+</div><div class="case-arg">
+  <div class="case-arg-title">📉 Revenue Volatility and QoQ Decline</div>
+  <div class="case-arg-detail">Despite strong YoY growth, revenue dropped 73% quarter-over-quarter from $54.3M in Q4 2025 to $14.7M in Q1 2026, suggesting lumpy revenue streams and potential customer concentration.</div>
+  <div class="case-arg-source">📊 Quarterly data: QoQ revenue -73% (red flag), Q4 2025 $54.3M vs Q1 2026 $14.7M</div>
+</div>
+</div>
+    </div>
+  </div>
+  
+  <div class="case-box" style="margin-top:8px;"><div class="case-title">📰 Recent News</div><div class="news-item">📰 <a href="https://www.fool.com/coverage/better-buy/2026/07/01/ast-spacemobile-vs-boeing-which-technology-stock-is-a-better-buy-in-2026/" target="_blank" rel="noopener">AST SpaceMobile vs. Boeing: Which Technology Stock Is a Better Buy in 2026?</a> — Motley Fool</div>
+<div class="news-item">📰 <a href="https://stocktwits.com/news-articles/markets/equity/asts-japan-rakuten-1b-push-spacex-rival/cZmdDamR70H" target="_blank" rel="noopener">ASTS Stock Eyes Comeback After 4-Week Slide: Japan Filing Confirms Rakuten-Led Pick For Nearly $1B Push By SpaceX Rival</a> — Stocktwits</div>
+<div class="news-item">📰 <a href="https://finance.yahoo.com/markets/stocks/articles/why-ast-spacemobile-inc-asts-220004119.html" target="_blank" rel="noopener">Why AST SpaceMobile, Inc. (ASTS) Outpaced the Stock Market Today</a> — Zacks</div>
+</div>
+  <div class="verdict">
+  <strong>Verdict:</strong> Net bearish: The company's massive losses, extreme valuation, and volatile revenue outweigh the impressive growth and technical momentum.<br>
+  <strong>Key Risk:</strong> <span class="negative">The company may run out of cash before achieving profitability, given cumulative losses of $487.3M over four quarters and high debt-to-equity of 112.4.</span><br>
+  <strong>Key Catalyst:</strong> <span class="positive">A successful deployment of its satellite network and conversion of the Rakuten-led $1B Japan deal into recurring revenue could validate the business model and drive the stock higher.</span>
+</div>
+</div>
+</div>
+
+<div class="footer">
+  Generated at 20:44:47 by Hermes Agent · DeepSeek V4 Flash · Data via yfinance<br>
+  ⚠️ This is not financial advice. All data may be delayed 15-20 min. Do your own research.
+</div>
+
+</body>
+</html>
