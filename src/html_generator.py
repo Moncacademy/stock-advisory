@@ -192,12 +192,36 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
   .penny-badge {{ background: rgba(255,82,82,0.2); color: var(--red); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }}
   .sparkline {{ display: inline-block; vertical-align: middle; margin-left: 8px; }}
   .category-tag {{ font-size: 0.7rem; color: var(--purple); padding: 2px 6px; border-radius: 4px; background: rgba(188,140,255,0.1); }}
+  .sector-tag {{ font-size: 0.75rem; color: var(--blue); padding: 2px 8px; border-radius: 4px; background: rgba(88,166,255,0.12); font-weight: 500; margin-right: 4px; }}
+  .sector-tag-small {{ font-size: 0.65rem; color: var(--blue); padding: 1px 4px; border-radius: 3px; background: rgba(88,166,255,0.1); }}
   .footer {{ text-align: center; color: var(--text-dim); font-size: 0.75rem; padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }}
   .compact-list {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }}
   .compact-item {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 0.75rem; }}
   .compact-item .ticker {{ font-weight: 600; }}
   details summary {{ cursor: pointer; color: var(--text-dim); font-size: 0.85rem; padding: 8px 0; }}
   details[open] summary {{ color: var(--text); }}
+
+  /* Interactive pills */
+  .summary-pill {{ cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }}
+  .summary-pill:hover {{ transform: scale(1.05); }}
+  .summary-pill.active {{ box-shadow: 0 0 0 2px currentColor; }}
+
+  /* Collapsible stock cards */
+  .stock-header {{ cursor: pointer; border-radius: 10px; margin: -14px -14px 0 -14px; padding: 14px; }}
+  .stock-header:hover {{ background: rgba(255,255,255,0.03); }}
+  .stock-card.collapsed .stock-details {{ display: none; }}
+  .toggle-arrow {{ display: inline-block; transition: transform 0.2s; color: var(--text-dim); font-size: 0.65rem; margin-right: 4px; }}
+  .stock-card:not(.collapsed) .toggle-arrow {{ transform: rotate(90deg); }}
+
+  /* Collapsible case arguments */
+  .case-arg-source {{ cursor: pointer; user-select: none; }}
+  .case-arg-source:hover {{ text-decoration: underline; }}
+  .case-arg.arg-collapsed .case-arg-detail {{ display: none; }}
+
+  /* Controls */
+  .controls {{ text-align: center; margin-bottom: 12px; }}
+  .ctrl-btn {{ background: var(--card-bg); color: var(--text-dim); border: 1px solid var(--border); padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin: 0 4px; }}
+  .ctrl-btn:hover {{ color: var(--text); border-color: var(--text-dim); }}
 </style>
 </head>
 <body>
@@ -208,16 +232,20 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
 </div>
 
 <div class="summary">
-  <span class="summary-pill pill-priority">🔴 Priority: {len(priority_stocks)}</span>
-  <span class="summary-pill pill-watch">🟡 Watch: {len(watch_stocks)}</span>
-  <span class="summary-pill pill-stable">🟢 Stable: {len(stable_stocks)}</span>
-  <span class="summary-pill" style="background:rgba(139,148,158,0.1);border-color:var(--text-dim);color:var(--text-dim);">❌ Errors: {len(error_stocks)}</span>
+  <span class="summary-pill pill-priority" data-filter="priority">🔴 Priority: {len(priority_stocks)}</span>
+  <span class="summary-pill pill-watch" data-filter="watch">🟡 Watch: {len(watch_stocks)}</span>
+  <span class="summary-pill pill-stable" data-filter="stable">🟢 Stable: {len(stable_stocks)}</span>
+  <span class="summary-pill" style="background:rgba(139,148,158,0.1);border-color:var(--text-dim);color:var(--text-dim);" data-filter="errors">❌ Errors: {len(error_stocks)}</span>
+</div>
+<div class="controls">
+  <button class="ctrl-btn" id="expand-all">▶ Expand All</button>
+  <button class="ctrl-btn" id="collapse-all">▼ Collapse All</button>
 </div>
 ''')
 
     # --- PRIORITY STOCKS ---
     if priority_stocks:
-        html_parts.append('<div class="section">')
+        html_parts.append('<div class="section" data-section="priority">')
         html_parts.append('<div class="section-title">🔴 Priority — Significant Signals</div>')
         
         for stock in priority_stocks:
@@ -227,7 +255,7 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
     
     # --- WATCH STOCKS ---
     if watch_stocks:
-        html_parts.append('<div class="section">')
+        html_parts.append('<div class="section" data-section="watch">')
         html_parts.append('<div class="section-title">🟡 Watch — Minor Signals</div>')
         
         for stock in watch_stocks:
@@ -237,7 +265,7 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
     
     # --- STABLE STOCKS (compact) ---
     if stable_stocks:
-        html_parts.append('<div class="section">')
+        html_parts.append('<div class="section" data-section="stable">')
         html_parts.append(f'<details><summary>🟢 Stable — {len(stable_stocks)} stocks (no significant signals)</summary>')
         html_parts.append('<div class="compact-list">')
         
@@ -249,7 +277,7 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
             sparkline = generate_sparkline(stock.get("sparkline", []))
             
             html_parts.append(f'''<div class="compact-item">
-  <span class="ticker">{ticker}</span> <span class="category-tag">{get_category_for_ticker(ticker)}</span><br>
+  <span class="ticker">{ticker}</span> <span class="sector-tag-small">{stock.get("sector","?")}</span><br>
   ${price} <span class="{change_class}">{change:+.1f}%</span>
   <span class="sparkline">{sparkline}</span>
 </div>''')
@@ -258,12 +286,67 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
     
     # --- ERRORS ---
     if error_stocks:
-        html_parts.append('<div class="section">')
+        html_parts.append('<div class="section" data-section="errors">')
         html_parts.append(f'<details><summary>❌ Errors — {len(error_stocks)} stocks failed</summary>')
         for stock in error_stocks:
             html_parts.append(f'<div class="compact-item"><span class="ticker">{stock.get("ticker","?")}</span> — {stock.get("error","unknown")[:60]}</div>')
         html_parts.append('</details></div>')
     
+    # --- JAVASCRIPT ---
+    html_parts.append('''<script>
+(function() {
+  // Pill filtering
+  var pills = document.querySelectorAll('.summary-pill[data-filter]');
+  pills.forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      var filter = this.dataset.filter;
+      var wasActive = this.classList.contains('active');
+      pills.forEach(function(p) { p.classList.remove('active'); });
+      var sections = document.querySelectorAll('.section[data-section]');
+      if (wasActive) {
+        sections.forEach(function(s) { s.style.display = ''; });
+      } else {
+        this.classList.add('active');
+        sections.forEach(function(s) {
+          s.style.display = s.dataset.section === filter ? '' : 'none';
+        });
+      }
+    });
+  });
+
+  // Stock card toggle
+  document.querySelectorAll('.stock-header').forEach(function(header) {
+    header.addEventListener('click', function() {
+      this.closest('.stock-card').classList.toggle('collapsed');
+    });
+  });
+
+  // Case-arg source toggle
+  document.querySelectorAll('.case-arg-source').forEach(function(src) {
+    src.addEventListener('click', function(e) {
+      e.stopPropagation();
+      this.closest('.case-arg').classList.toggle('arg-collapsed');
+    });
+  });
+
+  // Expand all
+  var expandBtn = document.getElementById('expand-all');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      document.querySelectorAll('.stock-card').forEach(function(c) { c.classList.remove('collapsed'); });
+    });
+  }
+
+  // Collapse all
+  var collapseBtn = document.getElementById('collapse-all');
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      document.querySelectorAll('.stock-card').forEach(function(c) { c.classList.add('collapsed'); });
+    });
+  }
+})();
+</script>''')
+
     # --- FOOTER ---
     gen_time = datetime.now().strftime("%H:%M:%S")
     html_parts.append(f'''
@@ -288,6 +371,8 @@ def render_stock_card(stock, tech_map, fund_map, adv_map, news_map, full=True) -
     change_class = "positive" if change >= 0 else "negative"
     is_penny = stock.get("is_penny_stock", False)
     category = get_category_for_ticker(ticker)
+    sector = stock.get("sector", "Unknown")
+    industry = stock.get("industry", "")
     sparkline = generate_sparkline(stock.get("sparkline", []))
     
     tech = tech_map.get(ticker, {})
@@ -406,9 +491,10 @@ def render_stock_card(stock, tech_map, fund_map, adv_map, news_map, full=True) -
     
     penny_badge = '<span class="penny-badge">⚠️ PENNY</span>' if is_penny else ''
     
-    card = f'''<div class="stock-card">
+    card = f'''<div class="stock-card collapsed">
   <div class="stock-header">
     <div>
+      <span class="toggle-arrow">▶</span>
       <span class="stock-name">{name}</span>
       <span class="stock-ticker">{ticker}</span>
       <span class="category-tag">{category}</span>
@@ -421,25 +507,27 @@ def render_stock_card(stock, tech_map, fund_map, adv_map, news_map, full=True) -
     </div>
   </div>
   
-  <div class="indicators" style="margin-top:8px;">
-    <span class="indicator ind-neutral">Cap {mcap}</span>
-    <span class="indicator ind-neutral">Vol {vol} ({vol_ratio}x avg)</span>
-    {''.join(ind_parts)}
-  </div>
-  
-  {quarter_html}
-  
-  {''.join(flag_parts) and f'<div class="flags">{"".join(flag_parts)}</div>' if flag_parts else ''}
-  
-  <div class="stock-body">
-    <div class="bull-bear-grid">
-      {bull_html}
-      {bear_html}
+  <div class="stock-details">
+    <div class="indicators" style="margin-top:8px;">
+      <span class="indicator ind-neutral">Cap {mcap}</span>
+      <span class="indicator ind-neutral">Vol {vol} ({vol_ratio}x avg)</span>
+      {''.join(ind_parts)}
     </div>
+    
+    {quarter_html}
+    
+    {''.join(flag_parts) and f'<div class="flags">{" ".join(flag_parts)}</div>' if flag_parts else ''}
+    
+    <div class="stock-body">
+      <div class="bull-bear-grid">
+        {bull_html}
+        {bear_html}
+      </div>
+    </div>
+    
+    {news_html}
+    {verdict_html}
   </div>
-  
-  {news_html}
-  {verdict_html}
 </div>'''
     
     return card
