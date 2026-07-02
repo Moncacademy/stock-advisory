@@ -131,97 +131,324 @@ def generate_html(stock_data_list, tech_data_list, fund_data_list, news_map, adv
 <title>Stock Brief — {today}</title>
 <style>
   :root {{
-    --bg: #0d1117;
-    --card-bg: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-dim: #8b949e;
-    --green: #00d09c;
-    --red: #ff5252;
-    --yellow: #ffb74d;
-    --blue: #58a6ff;
-    --purple: #bc8cff;
+    --background: #0c0f1a;
+    --foreground: #e4e6ed;
+    --brand: #5b8fd9;
+    --brand-dark: #92b8f0;
+    --accent: #e8774f;
+    --glass-bg: rgba(18, 22, 38, 0.6);
+    --glass-border: rgba(100, 120, 180, 0.18);
+    --glass-highlight: rgba(140, 170, 255, 0.08);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --surface: #161b2e;
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --text-dim: #8b92a8;
   }}
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-  body {{ background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.5; padding: 12px; max-width: 100%; }}
-  .header {{ text-align: center; padding: 16px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }}
-  .header h1 {{ font-size: 1.5rem; font-weight: 600; }}
-  .header .date {{ color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }}
-  .summary {{ display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }}
-  .summary-pill {{ padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--border); }}
-  .pill-priority {{ background: rgba(255,82,82,0.15); border-color: var(--red); color: var(--red); }}
-  .pill-watch {{ background: rgba(255,183,77,0.15); border-color: var(--yellow); color: var(--yellow); }}
-  .pill-stable {{ background: rgba(0,208,156,0.15); border-color: var(--green); color: var(--green); }}
-  .pill-new {{ background: rgba(88,166,255,0.15); border-color: var(--blue); color: var(--blue); }}
+
+  body {{
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(91,143,217,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(232,119,79,0.05) 0%, transparent 70%),
+      var(--background);
+    color: var(--foreground);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    padding: 16px;
+    max-width: 100%;
+    -webkit-font-smoothing: antialiased;
+  }}
+
+  /* ── Liquid Glass ── */
+  .glass {{
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
+    box-shadow: 0 2px 24px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  }}
+
+  .header {{
+    text-align: center;
+    padding: 20px 0 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }}
+  .header h1 {{
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--brand-dark), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }}
+  .header .date {{ color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }}
+
+  /* ── Summary pills ── */
+  .summary {{ display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }}
+  .summary-pill {{
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+    backdrop-filter: blur(8px) saturate(1.3);
+    -webkit-backdrop-filter: blur(8px) saturate(1.3);
+  }}
+  .summary-pill:hover {{ transform: scale(1.05); }}
+  .summary-pill.active {{ box-shadow: 0 0 0 2px currentColor, 0 4px 16px rgba(0,0,0,0.2); }}
+  .pill-priority {{ background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }}
+  .pill-watch {{ background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3); color: var(--yellow); }}
+  .pill-stable {{ background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); color: var(--green); }}
+  .pill-error {{ background: rgba(139,146,168,0.1); border: 1px solid rgba(139,146,168,0.25); color: var(--text-dim); }}
+
+  /* ── Controls ── */
+  .controls {{ text-align: center; margin-bottom: 16px; }}
+  .ctrl-btn {{
+    background: var(--glass-bg);
+    color: var(--text-dim);
+    border: 1px solid var(--glass-border);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin: 0 4px;
+    backdrop-filter: blur(8px) saturate(1.3);
+    -webkit-backdrop-filter: blur(8px) saturate(1.3);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s;
+  }}
+  .ctrl-btn:hover {{ color: var(--foreground); transform: scale(1.03); }}
+  .ctrl-btn:active {{ transform: scale(0.97); }}
+
+  /* ── Sections ── */
   .section {{ margin-bottom: 24px; }}
-  .section-title {{ font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }}
-  .stock-card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }}
-  .stock-header {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }}
-  .stock-name {{ font-size: 1rem; font-weight: 600; }}
-  .stock-ticker {{ color: var(--text-dim); font-size: 0.85rem; }}
-  .stock-price {{ font-size: 1.1rem; font-weight: 600; }}
-  .price-change {{ font-size: 0.85rem; font-weight: 500; }}
+  .section-title {{
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+  }}
+
+  /* ── Stock cards (Liquid Glass) ── */
+  .stock-card {{
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
+    box-shadow: 0 2px 24px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+  }}
+  .stock-card::before {{
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(168deg, rgba(140,170,255,0.06) 0%, transparent 40%);
+    mask-image: linear-gradient(to bottom, black 0%, transparent 50%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 50%);
+  }}
+  .stock-card:hover {{
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: 0 8px 40px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  }}
+
+  .stock-header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }}
+  .stock-name {{ font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; }}
+  .stock-ticker {{ color: var(--text-dim); font-size: 0.8rem; font-weight: 500; }}
+  .stock-price {{ font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }}
+  .price-change {{ font-size: 0.85rem; font-weight: 600; }}
   .positive {{ color: var(--green); }}
   .negative {{ color: var(--red); }}
-  .stock-body {{ display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }}
-  @media (min-width: 640px) {{ .stock-body {{ grid-template-columns: 1fr 1fr; }} }}
+
+  /* ── Tags ── */
+  .sector-tag {{
+    font-size: 0.7rem;
+    color: var(--blue);
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(96,165,250,0.1);
+    border: 1px solid rgba(96,165,250,0.2);
+    font-weight: 600;
+    display: inline-block;
+    margin: 2px 4px 2px 0;
+  }}
+  .category-tag {{
+    font-size: 0.65rem;
+    color: var(--purple);
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.15);
+  }}
+  .penny-badge {{
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: var(--red);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }}
+  .sector-tag-small {{
+    font-size: 0.6rem;
+    color: var(--blue);
+    padding: 1px 6px;
+    border-radius: 100px;
+    background: rgba(96,165,250,0.08);
+  }}
+
+  /* ── Indicators ── */
   .indicators {{ display: flex; flex-wrap: wrap; gap: 6px; }}
-  .indicator {{ padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }}
-  .ind-bullish {{ color: var(--green); border-color: rgba(0,208,156,0.3); }}
-  .ind-bearish {{ color: var(--red); border-color: rgba(255,82,82,0.3); }}
+  .indicator {{
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-weight: 500;
+  }}
+  .ind-bullish {{ color: var(--green); background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.2); }}
+  .ind-bearish {{ color: var(--red); background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); }}
   .ind-neutral {{ color: var(--text-dim); }}
-  .ind-warning {{ color: var(--yellow); border-color: rgba(255,183,77,0.3); }}
-  .bull-bear-grid {{ display: grid; grid-template-columns: 1fr; gap: 8px; }}
+  .ind-warning {{ color: var(--yellow); background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.2); }}
+
+  /* ── Bull/Bear cases ── */
+  .stock-body {{ display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }}
+  @media (min-width: 640px) {{ .stock-body {{ grid-template-columns: 1fr 1fr; }} }}
+
+  .bull-bear-grid {{ display: grid; grid-template-columns: 1fr; gap: 10px; }}
   @media (min-width: 640px) {{ .bull-bear-grid {{ grid-template-columns: 1fr 1fr; }} }}
-  .case-box {{ padding: 10px; border-radius: 8px; border: 1px solid var(--border); }}
-  .case-bull {{ background: rgba(0,208,156,0.05); border-color: rgba(0,208,156,0.2); }}
-  .case-bear {{ background: rgba(255,82,82,0.05); border-color: rgba(255,82,82,0.2); }}
-  .case-title {{ font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; display: flex; justify-content: space-between; }}
-  .case-arg {{ font-size: 0.8rem; margin-bottom: 6px; }}
-  .case-arg-title {{ font-weight: 500; color: var(--text); }}
-  .case-arg-detail {{ color: var(--text-dim); margin-top: 2px; }}
-  .case-arg-source {{ font-size: 0.7rem; color: var(--blue); margin-top: 2px; }}
-  .news-item {{ font-size: 0.8rem; margin-bottom: 4px; }}
-  .news-item a {{ color: var(--blue); text-decoration: none; }}
-  .news-item a:hover {{ text-decoration: underline; }}
-  .flags {{ display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }}
-  .flag {{ padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }}
-  .flag-red {{ background: rgba(255,82,82,0.15); color: var(--red); }}
-  .flag-green {{ background: rgba(0,208,156,0.15); color: var(--green); }}
-  .verdict {{ font-size: 0.85rem; font-weight: 500; padding: 6px 0; border-top: 1px solid var(--border); margin-top: 8px; }}
-  .penny-badge {{ background: rgba(255,82,82,0.2); color: var(--red); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }}
-  .sparkline {{ display: inline-block; vertical-align: middle; margin-left: 8px; }}
-  .category-tag {{ font-size: 0.7rem; color: var(--purple); padding: 2px 6px; border-radius: 4px; background: rgba(188,140,255,0.1); }}
-  .sector-tag {{ font-size: 0.75rem; color: var(--blue); padding: 2px 8px; border-radius: 4px; background: rgba(88,166,255,0.12); font-weight: 500; margin-right: 4px; }}
-  .sector-tag-small {{ font-size: 0.65rem; color: var(--blue); padding: 1px 4px; border-radius: 3px; background: rgba(88,166,255,0.1); }}
-  .footer {{ text-align: center; color: var(--text-dim); font-size: 0.75rem; padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }}
-  .compact-list {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }}
-  .compact-item {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 0.75rem; }}
-  .compact-item .ticker {{ font-weight: 600; }}
-  details summary {{ cursor: pointer; color: var(--text-dim); font-size: 0.85rem; padding: 8px 0; }}
-  details[open] summary {{ color: var(--text); }}
 
-  /* Interactive pills */
-  .summary-pill {{ cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }}
-  .summary-pill:hover {{ transform: scale(1.05); }}
-  .summary-pill.active {{ box-shadow: 0 0 0 2px currentColor; }}
-
-  /* Collapsible stock cards */
-  .stock-header {{ cursor: pointer; border-radius: 10px; margin: -14px -14px 0 -14px; padding: 14px; }}
-  .stock-header:hover {{ background: rgba(255,255,255,0.03); }}
-  .stock-card.collapsed .stock-details {{ display: none; }}
-  .toggle-arrow {{ display: inline-block; transition: transform 0.2s; color: var(--text-dim); font-size: 0.65rem; margin-right: 4px; }}
-  .stock-card:not(.collapsed) .toggle-arrow {{ transform: rotate(90deg); }}
-
-  /* Collapsible case arguments */
-  .case-arg-source {{ cursor: pointer; user-select: none; }}
-  .case-arg-source:hover {{ text-decoration: underline; }}
+  .case-box {{
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }}
+  .case-bull {{
+    background: rgba(52,211,153,0.06);
+    border-color: rgba(52,211,153,0.15);
+    box-shadow: inset 0 1px 0 rgba(52,211,153,0.08);
+  }}
+  .case-bear {{
+    background: rgba(248,113,113,0.06);
+    border-color: rgba(248,113,113,0.15);
+    box-shadow: inset 0 1px 0 rgba(248,113,113,0.08);
+  }}
+  .case-title {{ font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; display: flex; justify-content: space-between; letter-spacing: -0.01em; }}
+  .case-arg {{ font-size: 0.8rem; margin-bottom: 8px; }}
+  .case-arg-title {{ font-weight: 600; color: var(--foreground); }}
+  .case-arg-detail {{ color: var(--text-dim); margin-top: 3px; line-height: 1.45; }}
+  .case-arg-source {{
+    font-size: 0.68rem;
+    color: var(--blue);
+    margin-top: 3px;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }}
+  .case-arg-source:hover {{ opacity: 1; text-decoration: underline; }}
   .case-arg.arg-collapsed .case-arg-detail {{ display: none; }}
 
-  /* Controls */
-  .controls {{ text-align: center; margin-bottom: 12px; }}
-  .ctrl-btn {{ background: var(--card-bg); color: var(--text-dim); border: 1px solid var(--border); padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; margin: 0 4px; }}
-  .ctrl-btn:hover {{ color: var(--text); border-color: var(--text-dim); }}
+  /* ── News ── */
+  .news-item {{ font-size: 0.8rem; margin-bottom: 6px; }}
+  .news-item a {{ color: var(--blue); text-decoration: none; transition: color 0.2s; }}
+  .news-item a:hover {{ color: var(--brand-dark); text-decoration: underline; }}
+
+  /* ── Flags ── */
+  .flags {{ display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }}
+  .flag {{ padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 500; }}
+  .flag-red {{ background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.15); }}
+  .flag-green {{ background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.15); }}
+
+  /* ── Verdict ── */
+  .verdict {{
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 10px;
+    line-height: 1.6;
+  }}
+
+  .sparkline {{ display: inline-block; vertical-align: middle; margin-left: 8px; }}
+
+  /* ── Footer ── */
+  .footer {{
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    padding: 24px 0;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 24px;
+  }}
+
+  /* ── Compact list ── */
+  .compact-list {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }}
+  .compact-item {{
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px) saturate(1.3);
+    -webkit-backdrop-filter: blur(8px) saturate(1.3);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }}
+  .compact-item:hover {{ transform: translateY(-1px) scale(1.02); }}
+  .compact-item .ticker {{ font-weight: 700; }}
+
+  /* ── Details/summary ── */
+  details summary {{
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    padding: 10px 0;
+    font-weight: 600;
+    transition: color 0.2s;
+  }}
+  details[open] summary {{ color: var(--foreground); }}
+
+  /* ── Collapsible ── */
+  .stock-card.collapsed .stock-details {{ display: none; }}
+  .toggle-arrow {{
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    margin-right: 6px;
+  }}
+  .stock-card:not(.collapsed) .toggle-arrow {{ transform: rotate(90deg); }}
+
+  @media (prefers-reduced-motion: reduce) {{
+    * {{ transition: none !important; animation: none !important; }}
+  }}
 </style>
 </head>
 <body>
@@ -496,7 +723,8 @@ def render_stock_card(stock, tech_map, fund_map, adv_map, news_map, full=True) -
     <div>
       <span class="toggle-arrow">▶</span>
       <span class="stock-name">{name}</span>
-      <span class="stock-ticker">{ticker}</span>
+      <span class="stock-ticker">{ticker}</span><br>
+      <span class="sector-tag">{sector}</span>
       <span class="category-tag">{category}</span>
       {penny_badge}
       <span class="sparkline">{sparkline}</span>
