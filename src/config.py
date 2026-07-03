@@ -22,6 +22,20 @@ ALL_TICKERS = []
 for tickers in WATCHLIST.values():
     ALL_TICKERS.extend(tickers)
 
+# Category → accent color mapping (monc-app.com style color-coding)
+CATEGORY_COLORS = {
+    "Semiconductors": "blue",
+    "Memory_Storage": "cyan",
+    "Networking_Interconnects": "teal",
+    "Datacenter_Infrastructure": "amber",
+    "Energy_Power": "orange",
+    "Rare_Earth_Materials": "green",
+    "Space_Satellites": "purple",
+    "AI_Software_Platforms": "indigo",
+    "Quantum_Computing": "violet",
+    "Industrial_Automation": "rose",
+}
+
 # Penny stock threshold ($5)
 PENNY_STOCK_THRESHOLD = 5.0
 
