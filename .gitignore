@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 data/
 .DS_Store
+cron_run.log
+run_cron.sh
